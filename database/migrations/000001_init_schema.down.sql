@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS delivery_logs;
+DROP TABLE IF EXISTS monitoring_data;
+DROP TABLE IF EXISTS sensors;
+DROP TABLE IF EXISTS devices;

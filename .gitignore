@@ -1,0 +1,41 @@
+# Sensitive environment files
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.out
+*.test
+bin/
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Go coverage and profiling
+coverage.out
+coverage.html
+*.coverprofile
+*.prof
+*.pprof
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
