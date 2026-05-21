@@ -1,0 +1,698 @@
+basePath: /api/v1
+definitions:
+  delivery.DeliveryLog:
+    properties:
+      attempt:
+        type: integer
+      created_at:
+        type: string
+      error_message:
+        type: string
+      id:
+        type: integer
+      monitoring_data_id:
+        type: integer
+      status:
+        type: string
+      status_code:
+        type: integer
+      target_url:
+        type: string
+    type: object
+  delivery.LogsResponseEnvelope:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/delivery.DeliveryLog'
+        type: array
+      message:
+        type: string
+    type: object
+  delivery.MessageResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  delivery.ProcessPendingResponse:
+    properties:
+      message:
+        type: string
+      total:
+        type: integer
+    type: object
+  device.CreateRequest:
+    properties:
+      device_code:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    required:
+    - device_code
+    - name
+    type: object
+  device.DetailResponseEnvelope:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/device.Device'
+      message:
+        type: string
+    type: object
+  device.Device:
+    properties:
+      created_at:
+        type: string
+      device_code:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      sensors:
+        items:
+          $ref: '#/definitions/device.SensorRelation'
+        type: array
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  device.ListResponseEnvelope:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/device.Device'
+        type: array
+      message:
+        type: string
+    type: object
+  device.MessageResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  device.SensorRelation:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      sensor_code:
+        type: string
+    type: object
+  device.UpdateRequest:
+    properties:
+      device_code:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    required:
+    - device_code
+    - name
+    type: object
+  monitoring.CreateRequest:
+    properties:
+      device_id:
+        type: integer
+      scheduled_at:
+        type: string
+      sensor_id:
+        type: integer
+      status:
+        type: string
+      unit:
+        type: string
+      value:
+        type: number
+    required:
+    - device_id
+    - sensor_id
+    - value
+    type: object
+  monitoring.DetailResponseEnvelope:
+    properties:
+      data:
+        $ref: '#/definitions/monitoring.MonitoringData'
+    type: object
+  monitoring.ListResponseEnvelope:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/monitoring.MonitoringData'
+        type: array
+    type: object
+  monitoring.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  monitoring.MonitoringData:
+    properties:
+      created_at:
+        type: string
+      device_id:
+        type: integer
+      id:
+        type: integer
+      next_retry_at:
+        type: string
+      retry_count:
+        type: integer
+      scheduled_at:
+        type: string
+      sensor_id:
+        type: integer
+      sent_at:
+        type: string
+      status:
+        type: string
+      unit:
+        type: string
+      updated_at:
+        type: string
+      value:
+        type: number
+    type: object
+  sensor.CreateRequest:
+    properties:
+      device_id:
+        type: integer
+      name:
+        type: string
+      sensor_code:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+      unit:
+        type: string
+    required:
+    - device_id
+    - name
+    - sensor_code
+    - type
+    type: object
+  sensor.DetailResponse:
+    properties:
+      created_at:
+        type: string
+      device:
+        $ref: '#/definitions/sensor.DeviceResponse'
+      device_id:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      sensor_code:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+      unit:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  sensor.DetailResponseEnvelope:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/sensor.DetailResponse'
+      message:
+        type: string
+    type: object
+  sensor.DeviceResponse:
+    properties:
+      device_code:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  sensor.ListResponseEnvelope:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/sensor.DetailResponse'
+        type: array
+      message:
+        type: string
+    type: object
+  sensor.MessageResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  sensor.UpdateRequest:
+    properties:
+      device_id:
+        type: integer
+      name:
+        type: string
+      sensor_code:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+      unit:
+        type: string
+    required:
+    - device_id
+    - name
+    - sensor_code
+    - type
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Backend API for IoT monitoring data delivery with retry and dead-letter
+    handling.
+  title: IoT Device Delivery API
+  version: "1.0"
+paths:
+  /deliveries/send-pending:
+    post:
+      consumes:
+      - application/json
+      description: Process pending monitoring deliveries immediately.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ProcessPendingResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/delivery.MessageResponse'
+      summary: Send pending deliveries
+      tags:
+      - Deliveries
+  /delivery-logs:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all delivery log records.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.LogsResponseEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/delivery.MessageResponse'
+      summary: List delivery logs
+      tags:
+      - Deliveries
+  /devices:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all devices.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/device.ListResponseEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+      summary: List devices
+      tags:
+      - Devices
+    post:
+      consumes:
+      - application/json
+      description: Create a new device record.
+      parameters:
+      - description: Device payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/device.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/device.DetailResponseEnvelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+      summary: Create device
+      tags:
+      - Devices
+  /devices/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a device by its ID.
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+      summary: Delete device
+      tags:
+      - Devices
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single device by its ID.
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/device.DetailResponseEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+      summary: Get device by ID
+      tags:
+      - Devices
+    put:
+      consumes:
+      - application/json
+      description: Update an existing device by its ID.
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Device payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/device.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/device.DetailResponseEnvelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/device.MessageResponse'
+      summary: Update device
+      tags:
+      - Devices
+  /monitoring-data:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all monitoring data records.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/monitoring.ListResponseEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/monitoring.MessageResponse'
+      summary: List monitoring data
+      tags:
+      - Monitoring
+    post:
+      consumes:
+      - application/json
+      description: Create a monitoring data record for a device and sensor.
+      parameters:
+      - description: Monitoring payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/monitoring.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/monitoring.DetailResponseEnvelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/monitoring.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/monitoring.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/monitoring.MessageResponse'
+      summary: Create monitoring data
+      tags:
+      - Monitoring
+  /sensors:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all sensors.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sensor.ListResponseEnvelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+      summary: List sensors
+      tags:
+      - Sensors
+    post:
+      consumes:
+      - application/json
+      description: Create a new sensor record.
+      parameters:
+      - description: Sensor payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/sensor.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/sensor.DetailResponseEnvelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+      summary: Create sensor
+      tags:
+      - Sensors
+  /sensors/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a sensor by its ID.
+      parameters:
+      - description: Sensor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+      summary: Delete sensor
+      tags:
+      - Sensors
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single sensor by its ID.
+      parameters:
+      - description: Sensor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sensor.DetailResponseEnvelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+      summary: Get sensor by ID
+      tags:
+      - Sensors
+    put:
+      consumes:
+      - application/json
+      description: Update an existing sensor by its ID.
+      parameters:
+      - description: Sensor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Sensor payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/sensor.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sensor.DetailResponseEnvelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/sensor.MessageResponse'
+      summary: Update sensor
+      tags:
+      - Sensors
+swagger: "2.0"

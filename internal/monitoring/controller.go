@@ -15,6 +15,18 @@ func NewController(service Service) *Controller {
 	return &Controller{service: service}
 }
 
+// Create godoc
+// @Summary Create monitoring data
+// @Description Create a monitoring data record for a device and sensor.
+// @Tags Monitoring
+// @Accept json
+// @Produce json
+// @Param request body CreateRequest true "Monitoring payload"
+// @Success 201 {object} DetailResponseEnvelope
+// @Failure 400 {object} MessageResponse
+// @Failure 404 {object} MessageResponse
+// @Failure 500 {object} MessageResponse
+// @Router /monitoring-data [post]
 func (h *Controller) Create(c *gin.Context) {
 	var input CreateRequest
 
@@ -39,6 +51,15 @@ func (h *Controller) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": result})
 }
 
+// FindAll godoc
+// @Summary List monitoring data
+// @Description Retrieve all monitoring data records.
+// @Tags Monitoring
+// @Accept json
+// @Produce json
+// @Success 200 {object} ListResponseEnvelope
+// @Failure 500 {object} MessageResponse
+// @Router /monitoring-data [get]
 func (h *Controller) FindAll(c *gin.Context) {
 	items, err := h.service.FindAll()
 	if err != nil {

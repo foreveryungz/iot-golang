@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "iot-golang/docs"
 	"iot-golang/internal/config"
 	"iot-golang/internal/database"
 	"iot-golang/internal/delivery"
@@ -10,8 +11,15 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title IoT Device Delivery API
+// @version 1.0
+// @description Backend API for IoT monitoring data delivery with retry and dead-letter handling.
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
 	cfg := config.Load()
 
@@ -27,6 +35,8 @@ func main() {
 			"message": "API is running..",
 		})
 	})
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	device.RegisterRoutes(router, db)
 	sensor.RegisterRoutes(router, db)

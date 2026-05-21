@@ -38,6 +38,7 @@ Monitoring Data
 - Transactional delivery state update
 - Consistent error mapping
 - Layered Architecture
+- Swagger API Documentation
 - SQL Migration
 - Unit Testing
 - HTTP Client Abstraction
@@ -56,6 +57,10 @@ Monitoring Data
 | Scheduler      | robfig/cron    | Scheduled delivery and retry job execution    |
 | Testing        | Testify        | Assertions for unit tests                     |
 | Test Database  | SQLite         | In-memory database for isolated unit tests    |
+
+| Tool             | Purpose           |
+| ---------------- | ----------------- |
+| Swaggo / Swagger | API Documentation |
 
 ---
 
@@ -114,9 +119,19 @@ go test ./...
 
 The test suite uses SQLite in-memory databases for isolation and does not require a running PostgreSQL instance.
 
+### Generate Swagger Docs
+
+```bash
+swag init -g cmd/server/main.go
+```
+
 ---
 
 ## 4. API Documentation
+
+Swagger UI is available at:
+
+http://localhost:8080/swagger/index.html
 
 ### Device
 
@@ -180,6 +195,7 @@ The test suite uses SQLite in-memory databases for isolation and does not requir
 - Service-level validation is used to ensure monitoring data references a valid device-sensor relationship.
 - Controller error mapping separates validation errors, not-found errors, duplicate constraint errors, and internal server errors.
 - HTTP client abstraction exists to isolate outbound delivery behavior and make the delivery service easier to test.
+- Swagger documentation was added to simplify API exploration and endpoint testing during technical assessment review.
 - SQLite is used for unit tests because it provides a fast, isolated in-memory database without requiring PostgreSQL during local test execution.
 
 ---
